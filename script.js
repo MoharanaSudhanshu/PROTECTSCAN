@@ -233,7 +233,7 @@ async function runPrediction() {
   formData.append("file", uploadedFile);
   formData.append("model", selectedModel);
 
-  const response = await fetch("https://protectscan.onrender.com/predict", {
+  const response = await fetch("https://YOUR-RAILWAY-DOMAIN.up.railway.app/gradcam", {
   method: "POST",
   body: formData,
 });
