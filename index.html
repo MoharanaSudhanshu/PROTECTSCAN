@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<input accept="image/png" id="stamp-upload" style="display:none;" type="file"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PROTECTSCAN - Privacy-Focused Breast Cancer Detection</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<link href="style.css" rel="stylesheet"/></head>
+<body>
+
+<div class="loading-overlay" id="loading-overlay">
+<div class="loading-spinner"></div>
+<p>Processing image and predicting...</p>
+<p class="text-sm" style="margin-top: 10px; color: #7f8c8d;">(This may take a few moments)</p>
+</div>
+<div class="container">
+<div class="header">
+<h1>PROTECTSCAN</h1>
+<p>Privacy-Focused CNN-based Breast Cancer Detection Framework</p>
+</div>
+<div class="main-content">
+<!-- Step Indicator -->
+<div class="step-indicator">
+<div class="step active" id="step1">1</div>
+<div class="step" id="step2">2</div>
+<div class="step" id="step3">3</div>
+<div class="step" id="step4">4</div>
+</div>
+<!-- Login Section -->
+<div class="section active" id="login-section">
+<h2>User Authentication</h2>
+<form id="login-form">
+<div class="form-group">
+<label for="username">Username:</label>
+<input id="username" name="username" required="" type="text"/>
+</div>
+<div class="form-group">
+<label for="password">Password:</label>
+<input id="password" name="password" required="" type="password"/>
+</div>
+<div class="form-group">
+<label for="role">Select Role:</label>
+<div class="role-selector">
+<div class="role-card" data-role="radiologist">
+<h3>Radiologist</h3>
+<p>Clinical diagnosis and image analysis</p>
+</div>
+<div class="role-card" data-role="researcher">
+<h3>Researcher</h3>
+<p>Academic research and model evaluation</p>
+</div>
+<div class="role-card" data-role="admin">
+<h3>Administrator</h3>
+<p>System management and user control</p>
+</div>
+<div class="role-card" data-role="doctor">
+<h3>Doctor</h3>
+<p>General medical practitioner</p>
+</div>
+</div>
+</div>
+<button class="btn" type="submit">Login</button>
+</form>
+</div>
+<!-- Dataset & Encryption Section (Combined for brevity) -->
+<div class="section" id="config-section">
+<h2>System Configuration</h2>
+<div class="dataset-info">
+<h3>CBIS-DDSM Dataset</h3>
+<p>Curated Breast Imaging Subset of Digital Database for Screening Mammography</p>
+<p><strong>Status:</strong> <span class="status-indicator status-ready">LOADED</span></p>
+<p><strong>Images:</strong> 5,000+ mammographic images</p>
+<p><strong>Categories:</strong> Cancerous and Non-cancerous classifications</p>
+</div>
+<div class="alert alert-success">
+<strong>Success!</strong> Dataset has been pre-loaded and training completed.
+                </div>
+<h3 style="margin-top: 30px; margin-bottom: 15px; color: #2c3e50;">Image Encryption Selection</h3>
+<p>Choose your preferred encryption method to ensure patient data privacy:</p>
+<div class="encryption-options">
+<div class="encryption-card" data-encryption="aes">
+<h3>AES Encryption</h3>
+<p>Advanced Encryption Standard - Military-grade security</p>
+<p><strong>Security Level:</strong> High</p>
+<p><strong>Processing Time:</strong> Fast</p>
+</div>
+<div class="encryption-card" data-encryption="pixel">
+<h3>Pixel Shuffling</h3>
+<p>Spatial rearrangement of image pixels</p>
+<p><strong>Security Level:</strong> Medium</p>
+<p><strong>Processing Time:</strong> Very Fast</p>
+</div>
+</div>
+<div class="form-group">
+<label>Enable Encryption:</label>
+<div style="margin-top: 10px;">
+<input checked="" id="encrypt-yes" name="encryption" type="radio" value="yes"/>
+<label for="encrypt-yes" style="display: inline; margin-right: 20px;">Yes</label>
+<input id="encrypt-no" name="encryption" type="radio" value="no"/>
+<label for="encrypt-no" style="display: inline;">No</label>
+</div>
+</div>
+<div class="navigation">
+<button class="btn btn-secondary" onclick="previousStep()">Previous</button>
+<button class="btn" onclick="nextStep()">Continue</button>
+</div>
+</div>
+<!-- Image Upload and Model Selection Section -->
+<div class="section" id="upload-predict-section">
+<h2>Upload Image &amp; Select Model</h2>
+<p>Upload a mammogram image for analysis and choose a prediction model.</p>
+<div class="upload-area" id="image-upload-area">
+<input accept="image/*" id="mammogram-upload" type="file"/>
+<div class="icon">⬆</div>
+<p>Drag &amp; drop your image here, or <strong>click to browse</strong></p>
+<p class="text-sm" style="color: #7f8c8d;">(Supported formats: JPG, PNG)</p>
+</div>
+<div class="image-display-card" id="image-display-card" style="display: none; position: relative;">
+<h4>Uploaded Mammogram</h4>
+<div class="image-blur-container">
+<div class="image-overlay-text">Encrypted View</div>
+<img alt="Uploaded Mammogram" id="original-mammogram-preview" src=""/>
+</div>
+</div>
+<h3 style="margin-top: 30px; margin-bottom: 15px; color: #2c3e50;">Prediction Model Selection</h3>
+<p>Choose the CNN model for breast cancer prediction:</p>
+<div class="model-grid">
+<div class="model-card" data-model="efficientnet">
+<h3>EfficientNet</h3>
+<p>Optimized for accuracy and efficiency</p>
+<p><strong>Accuracy:</strong>98.76%</p>
+<p><strong>Speed:</strong>Fast</p>
+</div>
+<div class="model-card" data-model="resnet">
+<h3>ResNet50</h3>
+<p>50-layer residual network with ImageNet weights</p>
+<p><strong>Accuracy:</strong>99.68%</p>
+<p><strong>Speed:</strong> Medium</p>
+</div>
+<div class="model-card" data-model="custom">
+<h3>Custom CNN</h3>
+<p>Specialized mammography model</p>
+<p><strong>Accuracy:</strong>98.27%</p>
+<p><strong>Speed:</strong> Medium</p>
+</div>
+</div>
+<div class="alert alert-info">
+<strong>Note:</strong> All models have been trained on the CBIS-DDSM dataset and are ready for prediction.
+
+                </div>
+<div class="navigation">
+<button class="btn btn-secondary" onclick="previousStep()">Previous</button>
+<button class="btn" id="run-prediction-btn" onclick="nextStep()">Run Prediction</button>
+</div>
+</div>
+<!-- Results Section -->
+<div class="section" id="results-section">
+<h2>Prediction Results</h2>
+<div class="prediction-display-card" id="prediction-result-card">
+<h3>Prediction by <span id="predicted-model-name"></span></h3>
+<div class="prediction-text" id="prediction-text"></div>
+<div class="confidence-text">Confidence: <span id="confidence-value"></span>%</div>
+<div class="confidence-bar-container">
+<div class="confidence-bar-fill" id="confidence-bar-fill"></div>
+</div>
+</div>
+<div class="protectscan-stamp-container">
+<img id="pdf-stamp" alt="ProtectScan Verified" class="protectscan-stamp" src="protectscan_stamp.png"/>
+</div>
+<div class="download-section">
+<h3>Download Results</h3>
+<button class="btn btn-success" onclick="downloadReport()">Download PDF Report</button>
+<button class="btn btn-secondary" onclick="downloadLogs()">Export Logs</button>
+<button class="btn" onclick="showGradCAM()">Show Grad-CAM</button>
+<div id="gradcam-container" style="margin-top:20px;">
+<img alt="Grad-CAM Visualization" id="gradcam-image" style="max-width:400px;display:none;">
+</img></div>
+</div>
+<div class="navigation">
+<button class="btn btn-secondary" onclick="previousStep()">Previous</button>
+<button class="btn" onclick="resetSystem()">New Prediction</button>
+</div>
+</div>
+</div>
+<div class="footer">
+<p>© 2025 PROTECTSCAN - Privacy-Focused Medical AI Solution</p>
+</div>
+</div>
+
+<script src="script.js"></script></body>
+</html>
