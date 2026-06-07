@@ -1,3 +1,4 @@
+import requests
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import tensorflow as tf
@@ -9,17 +10,54 @@ import base64
 app = Flask(__name__)
 CORS(app)
 # Paths to .tflite models
+MODEL_URLS = {
+    "customcnn":
+    "https://drive.google.com/uc?export=download&id=1xYU2M9S7ogUjYXiOhQsmDGOVEg6yIFg7",
+
+    "efficientnet":
+    "https://drive.google.com/uc?export=download&id=1A5vBKO8NBEjxbNGhhfq81uS-HtbpfUnl",
+
+    "resnet":
+    "https://drive.google.com/uc?export=download&id=1Ga1xNrIVnGaFYk5Q_9Lly0efB_SfPwZL"
+}
+
+os.makedirs("models", exist_ok=True)
+
+for name, url in MODEL_URLS.items():
+
+    path = f"models/{name}.tflite"
+
+    if not os.path.exists(path):
+
+        print(f"Downloading {name} model...")
+
+        r = requests.get(url, allow_redirects=True)
+
+        if r.status_code == 200:
+
+            with open(path, "wb") as f:
+                f.write(r.content)
+
+            print(f"{name} downloaded.")
+
+        else:
+
+            print(f"Failed to download {name}")
+
 TFLITE_MODELS = {
-    'efficientnet': "model_EfficentNet.tflite",
-    'resnet': "model_ResNet.tflite",
-    'customcnn': "model_CustomCNN.tflite"
+    'efficientnet': "models/efficientnet.tflite",
+    'resnet': "models/resnet.tflite",
+    'customcnn': "models/customcnn.tflite"
 }
 # Load interpreter for each model
 def load_interpreter(model_path):
     interpreter = tf.lite.Interpreter(model_path=model_path)
     interpreter.allocate_tensors()
     return interpreter
-
+INTERPRETERS = {
+    name: load_interpreter(path)
+    for name, path in TFLITE_MODELS.items()
+} 
 # Preprocess uploaded image
 def preprocess_image(image_bytes, model_name):
     image = Image.open(io.BytesIO(image_bytes)).convert("RGB").resize((224, 224))
@@ -59,8 +97,7 @@ def predict_with_tflite(interpreter, image_array):
 
 
     # Assuming binary classification, sigmoid output
-    prediction = float(output_data[0])
-    return prediction, round(prediction * 100, 2)
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -74,11 +111,11 @@ def predict():
 
     file = request.files['file']
     image_bytes = file.read()
-    
+   
     try:
         image_array = preprocess_image(image_bytes, model_name)
 
-        interpreter = load_interpreter(model_path)
+        interpreter = INTERPRETERS[model_name]
         prediction, confidence = predict_with_tflite(interpreter, image_array)
 
         return jsonify({
@@ -87,23 +124,12 @@ def predict():
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 @app.route('/gradcam', methods=['POST'])
 def gradcam():
-    if 'file' not in request.files or 'model' not in request.form:
-        return jsonify({'error': 'Missing file or model'}), 400
-    model_name = request.form.get('model')
-    model_path = TFLITE_MODELS.get(model_name)
-    file = request.files['file']
-    image_bytes = file.read()
-    try:
-        # Generate gradcam_image using your gradcam function (implement this)
-        gradcam_image = generate_gradcam(model_path, image_bytes)  # Should return a PIL Image
-        buffered = io.BytesIO()
-        gradcam_image.save(buffered, format="PNG")
-        img_str = base64.b64encode(buffered.getvalue()).decode()
-        return jsonify({'gradcam': img_str})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    return jsonify({
+        'error': 'GradCAM not implemented yet'
+    }), 501  # Should return a PIL Image
 
 
 if __name__ == '__main__':
