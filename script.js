@@ -233,11 +233,10 @@ async function runPrediction() {
   formData.append("file", uploadedFile);
   formData.append("model", selectedModel);
 
-  try {
-    const response = await fetch("http://127.0.0.1:5000/predict", {
-      method: "POST",
-      body: formData,
-    });
+  const response = await fetch("https://protectscan.onrender.com/predict", {
+  method: "POST",
+  body: formData,
+});
 
     const data = await response.json();
 
