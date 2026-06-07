@@ -39,7 +39,7 @@ for name, url in MODEL_URLS.items():
                 f.write(r.content)
 
             print(f"{name} downloaded.")
-
+            print(f"{name} size: {os.path.getsize(path)} bytes")
         else:
 
             print(f"Failed to download {name}")
@@ -54,10 +54,18 @@ def load_interpreter(model_path):
     interpreter = tf.lite.Interpreter(model_path=model_path)
     interpreter.allocate_tensors()
     return interpreter
-INTERPRETERS = {
-    name: load_interpreter(path)
-    for name, path in TFLITE_MODELS.items()
-} 
+INTERPRETERS = {}
+
+for name, path in TFLITE_MODELS.items():
+
+    if os.path.exists(path):
+
+        try:
+            INTERPRETERS[name] = load_interpreter(path)
+            print(f"{name} model loaded successfully")
+
+        except Exception as e:
+            print(f"Error loading {name}: {e}")
 # Preprocess uploaded image
 def preprocess_image(image_bytes, model_name):
     image = Image.open(io.BytesIO(image_bytes)).convert("RGB").resize((224, 224))
@@ -107,7 +115,7 @@ def predict():
     model_name = request.form.get('model')
     if model_name not in TFLITE_MODELS:
         return jsonify({'error': 'Invalid model name'}), 400
-    model_path = TFLITE_MODELS[model_name]
+    
 
     file = request.files['file']
     image_bytes = file.read()
