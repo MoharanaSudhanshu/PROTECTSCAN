@@ -233,7 +233,7 @@ async function runPrediction() {
   formData.append("file", uploadedFile);
   formData.append("model", selectedModel);
 
-  const response = await fetch("protectscan-production.up.railway.app", {
+  const response = await fetch("https://protectscan-production.up.railway.app/predict", {
   method: "POST",
   body: formData,
 });
@@ -466,7 +466,7 @@ async function showGradCAM() {
   formData.append("model", selectedModel);
 
   try {
-    const response = await fetch("protectscan-production.up.railway.app/gradcam", {
+    const response = await fetch("https://protectscan-production.up.railway.app/gradcam", {
       method: "POST",
       body: formData,
     });
